@@ -1556,11 +1556,8 @@ if (typeof (global) !== 'undefined') {
     if (typeof global.AP === 'undefined') {
         Object.assign(global, { AP: {} });
     }
-    if (typeof global.AP.ui === 'undefined') {
-        Object.assign(global.AP, { ui: {} });
-    }
-    if (typeof global.AP.ui.modal === 'undefined') {
-        Object.assign(global.AP.ui, { modal: new _1.default });
+    if (typeof global.AP.modal === 'undefined') {
+        Object.assign(global.AP, { modal: new _1.default });
     }
 }
 

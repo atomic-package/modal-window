@@ -1,6 +1,6 @@
 {
   "name": "@atomic-package/modal-window",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "atomic-package - modal-window",
   "main": "dist/atomic-package.modal-window.js",
   "scripts": {
