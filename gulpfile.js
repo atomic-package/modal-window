@@ -18,7 +18,6 @@ const gulp         = require("gulp"),
 const ROOT        = __dirname;
 const SRC_PATH    = path.join(ROOT, './src');
 const PUBLIC_PATH = path.join(ROOT, './public');
-const DIST_PATH   = path.join(ROOT, './dist');
 
 // HTML
 const HTML_SRC_PATH = path.join(SRC_PATH, 'html');
@@ -28,7 +27,6 @@ const HTML_FILES    = path.join(HTML_SRC_PATH, './**/*.html');
 const SASS_SRC_PATH = path.join(SRC_PATH, 'scss');
 const SASS_FILES    = path.join(SASS_SRC_PATH, './**/*.scss');
 const CSS_FILES     = path.join(PUBLIC_PATH, './css/**/*.css');
-const CSS_DIST_PATH = path.join(ROOT, './dist/css');
 
 // Clean Task
 gulp.task('clean.release', function() {
@@ -38,11 +36,6 @@ gulp.task('clean.release', function() {
 // HTML
 gulp.task('html', function() {
   return gulp.src([HTML_FILES]).pipe(gulp.dest(PUBLIC_PATH));
-});
-
-gulp.task('html.copy', function() {
-  return gulp.src([HTML_FILES])
-    .pipe(gulp.dest(DIST_PATH));
 });
 
 // Sass, CSS
@@ -67,11 +60,6 @@ gulp.task('css.min', function() {
   return gulp.src([CSS_FILES])
     .pipe(cssmin())
     .pipe(gulp.dest(PUBLIC_PATH + '/css'));
-});
-
-gulp.task('css.copy', function() {
-  return gulp.src([CSS_FILES])
-    .pipe(gulp.dest(CSS_DIST_PATH));
 });
 
 // ファイル更新監視

@@ -34,6 +34,6 @@ if (typeof (global) !== 'undefined') {
     Object.assign(global.AP, { ui: {} });
   }
   if (typeof global.AP.ui.modal === 'undefined') {
-    Object.assign(global.AP.ui, { modal: ModalWindow });
+    Object.assign(global.AP.ui, { modal: new ModalWindow });
   }
 }
