@@ -171,6 +171,31 @@ export class Model {
   public getElements(data: any): Target[] {
     return APModel.search(this.targetList, data);
   }
+
+  public addTrigger(triggerViewList): void {
+    let addTriggerList = APModel.createTriggerModel(triggerViewList, Trigger);
+
+    addTriggerList.forEach((trigger) => {
+      this.triggerList.push(trigger);
+    });
+  }
+
+  public addTarget(targetViewList): void {
+    let addTargetList = APModel.createTargetModel(targetViewList, Target);
+
+    addTargetList.forEach((target) => {
+      this.targetList.push(target);
+    });
+
+    this.reBind();
+  }
+
+  private reBind() {
+    this.setTriggerCallBack();
+    this.setTriggerTargetId();
+    this.setTargetCallBack();
+    this.setBackDropCallBack();
+  }
 }
 
 export default Model;

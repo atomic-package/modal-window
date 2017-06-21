@@ -496,6 +496,190 @@ exports.default = Trigger;
 /* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var Utility = __webpack_require__(5);
+var Tween = __webpack_require__(2);
+var _created_modal_window_num = 0;
+var Target = (function () {
+    function Target(id, idName, className, isOpen, outerWidth, outerHeight, transform, node, body) {
+        this.id = id;
+        this.idName = idName;
+        this.className = className;
+        this.isOpen = isOpen;
+        this.outerWidth = outerWidth;
+        this.outerHeight = outerHeight;
+        this.transform = transform;
+        this.node = node;
+        this.body = body;
+        this.callBackFunction = function () { };
+        this._DEFAULT_ID_NAME = 'modalWindow';
+        this._DEFAULT_CLASS_NAME = 'modalWindow';
+        this.id = this.createModalWindowId();
+        if (this.idName == null) {
+            this.idName = String(this._DEFAULT_ID_NAME + this.id);
+            this.node.id = this.idName;
+        }
+        if (this.className == null) {
+            this.className = this._DEFAULT_CLASS_NAME;
+        }
+        this.outerCheck();
+        this.defaultStyle();
+        this.setEventListener();
+    }
+    Target.fromData = function (data) {
+        return new Target(0, data.node && data.node.id ? data.node.id : null, data.node && data.node.className ? data.node.className : null, false, data.outerWidth ? data.outerWidth : 0, data.outerHeight ? data.outerHeight : 0, data.transform ? data.transform : null, data.node ? data.node : null, data.node && data.node.children ? data.node.children[0] : null);
+    };
+    Target.create = function () {
+        return this.fromData({});
+    };
+    Target.prototype.createModalWindowId = function () {
+        return ++_created_modal_window_num;
+    };
+    Target.prototype.setEventListener = function () {
+        var _this = this;
+        this.node.addEventListener('click', function (e) {
+            _this.click(_this.callBackFunction);
+        }, false);
+        this.body.addEventListener('click', function (e) {
+        }, false);
+    };
+    Target.prototype.click = function (fn, isFirst) {
+        this.callBackFunction = fn;
+        if (!isFirst) {
+            fn();
+        }
+    };
+    Target.prototype.outerCheck = function () {
+        var utility = Utility.getInstance();
+        if (this.outerWidth === 0 || this.outerHeight === 0) {
+            this.outerWidth = this.getStyle(this.body).outerWidth;
+            this.outerHeight = this.getStyle(this.body).outerHeight;
+            this.transform = utility.whichTransform();
+        }
+    };
+    Target.prototype.getStyle = function (node) {
+        return {
+            outerWidth: node.offsetWidth,
+            outerHeight: node.offsetHeight
+        };
+    };
+    Target.prototype.defaultStyle = function () {
+        this.node.style.display = 'none';
+        this.node.style.position = 'fixed';
+        this.node.style.top = '0';
+        this.node.style.right = '0';
+        this.node.style.bottom = '0';
+        this.node.style.left = '0';
+        this.node.style.zIndex = '1010';
+        this.node.style.overflowY = 'scroll';
+        this.body.style.position = 'relative';
+        this.body.style.marginLeft = 'auto';
+        this.body.style.marginRight = 'auto';
+        this.body.style.marginTop = '100px';
+        this.body.style.opacity = '0';
+    };
+    Target.prototype.showStartStyle = function () {
+        this.node.style.display = 'block';
+        this.body.style.opacity = '0';
+        this.body.style.display = 'block';
+        this.body.style[this.transform] = 'scale(0.4)';
+        document.querySelector('html').classList.add('apOverHidden');
+    };
+    Target.prototype.showFixedStyle = function () {
+        this.body.style.opacity = '1';
+        this.body.style[this.transform] = 'scale(1)';
+    };
+    Target.prototype.hideFixedStyle = function () {
+        this.node.style.display = 'none';
+        this.body.style.opacity = '0';
+        this.body.style.display = 'none';
+        document.querySelector('html').classList.remove('apOverHidden');
+    };
+    Target.prototype.setOpenStyle = function () {
+        this.showStartStyle();
+        this.outerCheck();
+        this.showAnimation();
+    };
+    Target.prototype.showAnimation = function () {
+        var _this = this;
+        var tween = Tween.fromData({
+            start: {
+                opacity: this.body.style.opacity,
+                scale: 0.4
+            },
+            end: {
+                opacity: 1,
+                scale: 1
+            },
+            option: {
+                duration: 200,
+                easing: 'easeInOutCubic',
+                step: function (val) {
+                    _this.body.style.opacity = val.opacity;
+                    _this.body.style[_this.transform] = 'scale(' + val.scale + ')';
+                },
+                complete: function () {
+                    tween = null;
+                    _this.showFixedStyle();
+                }
+            }
+        });
+    };
+    Target.prototype.setCloseStyle = function () {
+        this.closeAnimation();
+    };
+    Target.prototype.closeAnimation = function () {
+        var _this = this;
+        var tween = Tween.fromData({
+            start: {
+                opacity: 1,
+                scale: 1
+            },
+            end: {
+                opacity: 0,
+                scale: 0.7
+            },
+            option: {
+                duration: 150,
+                easing: 'easeOutCubic',
+                step: function (val) {
+                    _this.body.style.opacity = val.opacity;
+                    _this.body.style[_this.transform] = 'scale(' + val.scale + ')';
+                },
+                complete: function () {
+                    _this.hideFixedStyle();
+                    tween = null;
+                }
+            }
+        });
+    };
+    Target.prototype.open = function () {
+        this.setOpenStyle();
+    };
+    Target.prototype.close = function () {
+        this.setCloseStyle();
+    };
+    Target.prototype.addIdName = function (idName) {
+        this.node.id = idName;
+    };
+    Target.prototype.destroy = function () {
+        var DOM = document.getElementById(this.node.id);
+        DOM.parentNode.removeChild(DOM);
+    };
+    Target.prototype.createElement = function () {
+    };
+    return Target;
+}());
+exports.Target = Target;
+exports.default = Target;
+
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(true)
 		module.exports = factory();
@@ -869,191 +1053,85 @@ if (typeof (global) !== 'undefined') {
 });
 
 /***/ }),
-/* 2 */
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var Utility = __webpack_require__(4);
-var Tween = __webpack_require__(1);
-var _created_modal_window_num = 0;
-var Target = (function () {
-    function Target(id, idName, className, isOpen, outerWidth, outerHeight, transform, node, body) {
+var _created_trigger_num = 0;
+var Trigger = (function () {
+    function Trigger(id, node, target, isOpener) {
         this.id = id;
-        this.idName = idName;
-        this.className = className;
-        this.isOpen = isOpen;
-        this.outerWidth = outerWidth;
-        this.outerHeight = outerHeight;
-        this.transform = transform;
         this.node = node;
-        this.body = body;
-        this.callBackFunction = function () { };
-        this._DEFAULT_ID_NAME = 'modalWindow';
-        this._DEFAULT_CLASS_NAME = 'modalWindow';
-        this.id = this.createModalWindowId();
-        if (this.idName == null) {
-            this.idName = String(this._DEFAULT_ID_NAME + this.id);
-            this.node.id = this.idName;
-        }
-        if (this.className == null) {
-            this.className = this._DEFAULT_CLASS_NAME;
-        }
-        this.outerCheck();
-        this.defaultStyle();
+        this.target = target;
+        this.isOpener = isOpener;
+        this.openCallBackFunction = function () { };
+        this.closeCallBackFunction = function () { };
+        this.setTarget(this.node);
         this.setEventListener();
+        this.id = this.createTriggerId();
     }
-    Target.fromData = function (data) {
-        return new Target(0, data.node && data.node.id ? data.node.id : null, data.node && data.node.className ? data.node.className : null, false, data.outerWidth ? data.outerWidth : 0, data.outerHeight ? data.outerHeight : 0, data.transform ? data.transform : null, data.node ? data.node : null, data.node && data.node.children ? data.node.children[0] : null);
+    Trigger.fromData = function (data) {
+        return new Trigger(0, data ? data : null, null, true);
     };
-    Target.create = function () {
-        return this.fromData({});
+    Trigger.prototype.createTriggerId = function () {
+        return ++_created_trigger_num;
     };
-    Target.prototype.createModalWindowId = function () {
-        return ++_created_modal_window_num;
+    Trigger.prototype.setTarget = function (node) {
+        if (node.dataset.apModalClose !== undefined) {
+            this.isOpener = false;
+            if (node.dataset.apModalClose) {
+                this.target = node.dataset.apModalClose;
+            }
+            else if ((/^#./gi).test(node.hash)) {
+                this.target = node.hash;
+            }
+            else {
+                this.target = 'all';
+            }
+        }
+        else if (node.dataset.apModal !== undefined) {
+            if (node.dataset.apModal) {
+                this.target = node.dataset.apModal;
+            }
+            else {
+                this.target = node.hash;
+            }
+        }
     };
-    Target.prototype.setEventListener = function () {
+    Trigger.prototype.setEventListener = function () {
         var _this = this;
-        this.node.addEventListener('click', function (e) {
-            _this.click(_this.callBackFunction);
-        }, false);
-        this.body.addEventListener('click', function (e) {
+        this.node.addEventListener('click', function (event) {
+            event.preventDefault();
+            if (_this.isOpener) {
+                _this.open(_this.openCallBackFunction);
+            }
+            else {
+                _this.close(_this.closeCallBackFunction);
+            }
         }, false);
     };
-    Target.prototype.click = function (fn, isFirst) {
-        this.callBackFunction = fn;
+    Trigger.prototype.open = function (fn, isFirst) {
+        this.openCallBackFunction = fn;
         if (!isFirst) {
-            fn();
+            fn(this.target);
         }
     };
-    Target.prototype.outerCheck = function () {
-        var utility = Utility.getInstance();
-        if (this.outerWidth === 0 || this.outerHeight === 0) {
-            this.outerWidth = this.getStyle(this.body).outerWidth;
-            this.outerHeight = this.getStyle(this.body).outerHeight;
-            this.transform = utility.whichTransform();
+    Trigger.prototype.close = function (fn, isFirst) {
+        this.closeCallBackFunction = fn;
+        if (!isFirst) {
+            fn(this.target);
         }
     };
-    Target.prototype.getStyle = function (node) {
-        return {
-            outerWidth: node.offsetWidth,
-            outerHeight: node.offsetHeight
-        };
-    };
-    Target.prototype.defaultStyle = function () {
-        this.node.style.display = 'none';
-        this.node.style.position = 'fixed';
-        this.node.style.top = '0';
-        this.node.style.right = '0';
-        this.node.style.bottom = '0';
-        this.node.style.left = '0';
-        this.node.style.zIndex = '1010';
-        this.node.style.overflowY = 'scroll';
-        this.body.style.position = 'relative';
-        this.body.style.marginLeft = 'auto';
-        this.body.style.marginRight = 'auto';
-        this.body.style.marginTop = '100px';
-        this.body.style.opacity = '0';
-    };
-    Target.prototype.showStartStyle = function () {
-        this.node.style.display = 'block';
-        this.body.style.opacity = '0';
-        this.body.style.display = 'block';
-        this.body.style[this.transform] = 'scale(0.4)';
-        document.querySelector('html').classList.add('apOverHidden');
-    };
-    Target.prototype.showFixedStyle = function () {
-        this.body.style.opacity = '1';
-        this.body.style[this.transform] = 'scale(1)';
-    };
-    Target.prototype.hideFixedStyle = function () {
-        this.node.style.display = 'none';
-        this.body.style.opacity = '0';
-        this.body.style.display = 'none';
-        document.querySelector('html').classList.remove('apOverHidden');
-    };
-    Target.prototype.setOpenStyle = function () {
-        this.showStartStyle();
-        this.outerCheck();
-        this.showAnimation();
-    };
-    Target.prototype.showAnimation = function () {
-        var _this = this;
-        var tween = Tween.fromData({
-            start: {
-                opacity: this.body.style.opacity,
-                scale: 0.4
-            },
-            end: {
-                opacity: 1,
-                scale: 1
-            },
-            option: {
-                duration: 200,
-                easing: 'easeInOutCubic',
-                step: function (val) {
-                    _this.body.style.opacity = val.opacity;
-                    _this.body.style[_this.transform] = 'scale(' + val.scale + ')';
-                },
-                complete: function () {
-                    tween = null;
-                    _this.showFixedStyle();
-                }
-            }
-        });
-    };
-    Target.prototype.setCloseStyle = function () {
-        this.closeAnimation();
-    };
-    Target.prototype.closeAnimation = function () {
-        var _this = this;
-        var tween = Tween.fromData({
-            start: {
-                opacity: 1,
-                scale: 1
-            },
-            end: {
-                opacity: 0,
-                scale: 0.7
-            },
-            option: {
-                duration: 150,
-                easing: 'easeOutCubic',
-                step: function (val) {
-                    _this.body.style.opacity = val.opacity;
-                    _this.body.style[_this.transform] = 'scale(' + val.scale + ')';
-                },
-                complete: function () {
-                    _this.hideFixedStyle();
-                    tween = null;
-                }
-            }
-        });
-    };
-    Target.prototype.open = function () {
-        this.setOpenStyle();
-    };
-    Target.prototype.close = function () {
-        this.setCloseStyle();
-    };
-    Target.prototype.addIdName = function (idName) {
-        this.node.id = idName;
-    };
-    Target.prototype.destroy = function () {
-        var DOM = document.getElementById(this.node.id);
-        DOM.parentNode.removeChild(DOM);
-    };
-    Target.prototype.createElement = function () {
-    };
-    return Target;
+    return Trigger;
 }());
-exports.Target = Target;
-exports.default = Target;
+exports.Trigger = Trigger;
+exports.default = Trigger;
 
 
 /***/ }),
-/* 3 */
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1061,12 +1139,30 @@ exports.default = Target;
 Object.defineProperty(exports, "__esModule", { value: true });
 var _1 = __webpack_require__(9);
 var _2 = __webpack_require__(7);
+var Trigger_1 = __webpack_require__(3);
+var Target_1 = __webpack_require__(1);
 var ModalWindow = (function () {
     function ModalWindow() {
         var _this = this;
-        _2.default.fetchElements(function (data) {
-            _this.model = _1.default.fromData(data);
-        });
+        this.addTriggerList = [];
+        this.addTargetList = [];
+        if (ModalWindow._instance) {
+            return ModalWindow._instance;
+        }
+        else {
+            if (!this.model) {
+                _2.default.fetchElements(function (data) {
+                    _this.model = _1.default.fromData(data);
+                });
+            }
+            if (this.addTriggerList.length > 0) {
+                this.model.addTrigger(this.addTriggerList);
+            }
+            if (this.addTargetList.length > 0) {
+                this.model.addTarget(this.addTargetList);
+            }
+            ModalWindow._instance = this;
+        }
     }
     ModalWindow.prototype.open = function (data) {
         this.model.open(data);
@@ -1086,14 +1182,31 @@ var ModalWindow = (function () {
     ModalWindow.prototype.getElements = function (data) {
         return this.model.getElements(data);
     };
+    ModalWindow.prototype.addTrigger = function (element) {
+        if (!this.model) {
+            this.addTriggerList.push(Trigger_1.default.fromData(element));
+        }
+        else {
+            this.model.addTrigger([Trigger_1.default.fromData(element)]);
+        }
+    };
+    ModalWindow.prototype.addTarget = function (element) {
+        if (!this.model) {
+            this.addTargetList.push(Target_1.default.fromData({ node: element }));
+        }
+        else {
+            this.model.addTarget([Target_1.default.fromData({ node: element })]);
+        }
+    };
     return ModalWindow;
 }());
+ModalWindow._instance = null;
 exports.ModalWindow = ModalWindow;
 exports.default = ModalWindow;
 
 
 /***/ }),
-/* 4 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 (function webpackUniversalModuleDefinition(root, factory) {
@@ -1318,13 +1431,13 @@ if (typeof (global) !== 'undefined') {
 });
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var Tween = __webpack_require__(1);
+var Tween = __webpack_require__(2);
 var BackDrop = (function () {
     function BackDrop() {
         this._BACKDROP_ELEMENT_CLASS_NAME = 'modalWindowBackDrop';
@@ -1429,84 +1542,6 @@ exports.default = BackDrop;
 
 
 /***/ }),
-/* 6 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var _created_trigger_num = 0;
-var Trigger = (function () {
-    function Trigger(id, node, target, isOpener) {
-        this.id = id;
-        this.node = node;
-        this.target = target;
-        this.isOpener = isOpener;
-        this.openCallBackFunction = function () { };
-        this.closeCallBackFunction = function () { };
-        this.setTarget(this.node);
-        this.setEventListener();
-        this.id = this.createTriggerId();
-    }
-    Trigger.fromData = function (data) {
-        return new Trigger(0, data ? data : null, null, true);
-    };
-    Trigger.prototype.createTriggerId = function () {
-        return ++_created_trigger_num;
-    };
-    Trigger.prototype.setTarget = function (node) {
-        if (node.dataset.apModalClose !== undefined) {
-            this.isOpener = false;
-            if (node.dataset.apModalClose) {
-                this.target = node.dataset.apModalClose;
-            }
-            else if ((/^#./gi).test(node.hash)) {
-                this.target = node.hash;
-            }
-            else {
-                this.target = 'all';
-            }
-        }
-        else if (node.dataset.apModal !== undefined) {
-            if (node.dataset.apModal) {
-                this.target = node.dataset.apModal;
-            }
-            else {
-                this.target = node.hash;
-            }
-        }
-    };
-    Trigger.prototype.setEventListener = function () {
-        var _this = this;
-        this.node.addEventListener('click', function (event) {
-            event.preventDefault();
-            if (_this.isOpener) {
-                _this.open(_this.openCallBackFunction);
-            }
-            else {
-                _this.close(_this.closeCallBackFunction);
-            }
-        }, false);
-    };
-    Trigger.prototype.open = function (fn, isFirst) {
-        this.openCallBackFunction = fn;
-        if (!isFirst) {
-            fn(this.target);
-        }
-    };
-    Trigger.prototype.close = function (fn, isFirst) {
-        this.closeCallBackFunction = fn;
-        if (!isFirst) {
-            fn(this.target);
-        }
-    };
-    return Trigger;
-}());
-exports.Trigger = Trigger;
-exports.default = Trigger;
-
-
-/***/ }),
 /* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -1514,9 +1549,9 @@ exports.default = Trigger;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var APView = __webpack_require__(0).View;
-var Trigger_1 = __webpack_require__(6);
-var Target_1 = __webpack_require__(2);
-var BackDrop_1 = __webpack_require__(5);
+var Trigger_1 = __webpack_require__(3);
+var Target_1 = __webpack_require__(1);
+var BackDrop_1 = __webpack_require__(6);
 var View = (function () {
     function View() {
     }
@@ -1548,7 +1583,7 @@ exports.default = View;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var e = eval, global = e('this');
-var _1 = __webpack_require__(3);
+var _1 = __webpack_require__(4);
 if (true) {
     module.exports = _1.default;
 }
@@ -1570,7 +1605,7 @@ if (typeof (global) !== 'undefined') {
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var APModel = __webpack_require__(0).Model;
-var Target_1 = __webpack_require__(2);
+var Target_1 = __webpack_require__(1);
 var _1 = __webpack_require__(13);
 var Model = (function () {
     function Model(backDrop, targetList, triggerList) {
@@ -1690,6 +1725,27 @@ var Model = (function () {
     };
     Model.prototype.getElements = function (data) {
         return APModel.search(this.targetList, data);
+    };
+    Model.prototype.addTrigger = function (triggerViewList) {
+        var _this = this;
+        var addTriggerList = APModel.createTriggerModel(triggerViewList, _1.Trigger);
+        addTriggerList.forEach(function (trigger) {
+            _this.triggerList.push(trigger);
+        });
+    };
+    Model.prototype.addTarget = function (targetViewList) {
+        var _this = this;
+        var addTargetList = APModel.createTargetModel(targetViewList, _1.Target);
+        addTargetList.forEach(function (target) {
+            _this.targetList.push(target);
+        });
+        this.reBind();
+    };
+    Model.prototype.reBind = function () {
+        this.setTriggerCallBack();
+        this.setTriggerTargetId();
+        this.setTargetCallBack();
+        this.setBackDropCallBack();
     };
     return Model;
 }());
